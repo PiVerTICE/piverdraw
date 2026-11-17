@@ -16,7 +16,7 @@ export PIVERDRAW_SUBROOT="$TMP/sub"
 sleep 1
 
 cd "$ROOT/tests" || exit 1
-if [ $# -gt 0 ]; then LISTE="$*"; else LISTE="t1 t2 t3 t4 t5 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15 t16 t17 t18 t19 t20 t22 t23 t24 pwa"; fi
+if [ $# -gt 0 ]; then LISTE="$*"; else LISTE="t1 t2 t3 t4 t5 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15 t16 t17 t18 t19 t20 t22 t23 t24 t25 pwa"; fi
 # Bruit connu, sans gravité : t1 (console ERR_FAILED d'une police), t2 « noir switches to white pen », t8 « gone at 3.2 s » (minuterie du laser)
 CONNU='noir switches to white pen|gone at 3\.2 s'
 # « timeout » n'existe pas d'office sur macOS : gtimeout (coreutils de Homebrew) ou, à défaut, sans limite de durée

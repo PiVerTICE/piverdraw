@@ -56,7 +56,7 @@ Un seul fichier, un seul `<script>` qui est une IIFE (`(function () { 'use stric
 | État | objet `S` (projet, page courante, outil, couleurs, sélection `S.sel` = Set d'ids, piles `S.undo`/`S.redo`, instruments `S.insts`, présentation…), `G` = geste en cours |
 | Projet | `newPage`, `blankProject`, `sampleProject`, `normalize(d)` (nettoie tout JSON importé), `serialize()`, `loadProject()` |
 | Historique | annuler/rétablir par **instantanés** : `commit(fn)` = `pushUndo(); fn(); touched()` (150 pas max) |
-| Géométrie | `boundsOf`/`rawBounds`, `hitObj`/`hitRaw`, `xformObj`, `rotateObj`, `unionBounds`, `selObjs`, `expandGroups`, `rotHandle` |
+| Géométrie | `boundsOf`/`rawBounds`, `hitObj`/`hitRaw`, `xformObj`, `rotateObj`, `unionBounds`, `selObjs`, `expandGroups`, `angOf`/`selAngle`/`selFrame` (cadre de sélection orienté : poignées d'agrandissement et de rotation dans son repère), `rotHandle(frame, z)` |
 | Dessin | `drawObj(c, o, live)`, `paintContent(c, pg, vis, opts)` (commun à l'écran, aux vignettes et aux exports), `render()` (écran : contenu + sélection + instruments + laser) |
 | Vue | zoom/déplacement par page (`S.views[pageId] = {tx, ty, z}`), `fit()`, molette, pincement |
 | Instruments | règle, équerres 45° et 30-60°, rapporteur, compas ; tracé le long des bords |
@@ -87,16 +87,16 @@ page   : { id, bg: 'blank'|'grid'|'lines'|'seyes'|'dots'|'noir', frame: {x,y,w,h
 fichier .json : { app: 'piverdraw', v: 1, name, cur, pages, assets, views }
 
 objet (commun) : { t, id, color, size, … } + facultatifs : rot, gid, locked, clone, href
-  stroke   : pts [[x, y, pression]], hl (surligneur), alpha, vp (pression variable), sharp (polygone, pas de lissage)
-  line / arrow : x1, y1, x2, y2
+  stroke   : pts [[x, y, pression]], hl (surligneur), alpha, vp (pression variable), sharp (polygone, pas de lissage)   — ang autorisé
+  line / arrow : x1, y1, x2, y2                                — ang autorisé
   rect / ellipse : x1, y1, x2, y2, fill (booléen)             — rot autorisé
   text     : x, y, text, size                                  — rot et href autorisés
   img      : x, y, w, h, iid                                   — rot et href autorisés
 ```
 
-- `rot` (radians) n'existe que pour rect, ellipse, text, img ; les traits, lignes et flèches sont tournés en réécrivant leurs points.
+- `rot` (radians) n'existe que pour rect, ellipse, text, img ; les traits, lignes et flèches sont tournés en réécrivant leurs points, et leur angle cumulé est mémorisé dans `ang` (radians, dans ]-π, π], borné à l'import) qui ne sert pas au dessin : `angOf(o)` donne l'angle de tout objet. Il permet d'afficher l'angle réel, d'orienter le cadre de sélection (`selFrame`, angle commun `selAngle`, sinon cadre droit) et le bouton « 0° » (`#selUnrot`) qui ramène à la position de départ. `rotateObj` met `ang` à jour (`withAng`).
 - `gid` : identifiant de groupe (les membres se sélectionnent/déplacent/copient ensemble).
-- `locked: true` : ni sélectionnable, ni effaçable, ni touché par « Tout effacer » (les pages de PDF importées sont verrouillées). Bouton « Déverrouiller (N) » dans la barre de l'outil Sélection.
+- `locked: true` : ni sélectionnable, ni effaçable, ni touché par « Effacer la page » (`clearPage` : bouton gomme du panneau des pages, et « Tout effacer » dans la barre de la gomme) (les pages de PDF importées sont verrouillées). Bouton « Déverrouiller (N) » dans la barre de l'outil Sélection.
 - `clone: true` : « copies illimitées » — glisser l'objet en tire une copie (Alt + glisser déplace l'original). Marqué par un badge ∞.
 
 ### Règles d'or (invariants à ne pas casser)
@@ -146,6 +146,7 @@ Playwright + Chromium, sans framework : chaque fichier est un script Node qui af
 | t20 | tactile et mobile (barre de sélection à 360/412 px) |
 | t22 | liens et édition sur du texte tourné, copier/coller |
 | t23 | écriture manuscrite regroupée (mot = un groupe, pause/éloignement/surligneur, annulation, dégrouper, persistance, tactile 360 px) |
+| t25 | effacer la page (panneau des pages, verrouillés conservés, annulation), angle mémorisé et bouton 0°, aimant sur l'angle réel, cadre orienté et agrandissement tourné, groupes, persistance, import piégé de `ang`, 360 px |
 | t24 | bandeau « nouvelle version » (affichage, Plus tard, Recharger enregistre le tableau, présentation, 360/412 px clair/sombre) |
 | pwa | installabilité (erreurs Chromium), hors ligne (rechargement, polices, import PDF, QR), bouton Installer (Chrome, iOS et Safari Mac simulés, déjà installée), sous-dossier, mise à jour du cache et bandeau « nouvelle version » |
 
