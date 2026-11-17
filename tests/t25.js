@@ -98,6 +98,7 @@ const H = require('./h.js');
   // ---------- 6. Mobile 360 px : bouton « Effacer la page » et barre de sélection avec 0° ----------
   const M = await H({ viewport: { width: 360, height: 740 }, touch: true });
   await M.add({ t: 'rect', x1: 200, y1: 260, x2: 400, y2: 340, fill: true, color: '#36c', rot: Math.PI / 6 });
+  await M.page.click('#pgMax');   // téléphone : le panneau des pages est replié par défaut
   await M.page.click('[data-tool="select"]'); await M.click([300, 300]); await M.page.waitForTimeout(100);
   const m = await M.page.evaluate(() => { const b = document.getElementById('pgClear').getBoundingClientRect(), u = document.getElementById('selUnrot').getBoundingClientRect();
     return { cw: b.width, ch: b.height, inView: b.left >= 0 && b.right <= innerWidth && b.bottom <= innerHeight, unrot: !document.getElementById('selUnrot').hidden, uw: u.width, sw: document.documentElement.scrollWidth, w: innerWidth }; });

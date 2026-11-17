@@ -108,9 +108,9 @@ objet (commun) : { t, id, color, size, … } + facultatifs : rot, gid, locked, c
 5. **L'attribut `hidden`** est réellement respecté (`[hidden]{display:none!important}`) : `syncAll()` affiche/masque les boutons avec `hidden`.
 6. **Rendu unique** : tout ce qui se voit sur la page doit passer par `paintContent` (écran, vignettes, export PNG et PDF) pour que l'export soit identique à l'écran.
 7. **Texte français** : apostrophes typographiques `’` dans les chaînes JS entre apostrophes droites (une `'` droite casse la chaîne). Interface en français ; titres/`aria-label` sur tous les boutons-icônes.
-8. **Tactile d'abord** : cibles ≥ 34 px, pas de survol obligatoire, `touch-action: none` sur le canvas. Tester à 360 px, 412 px et 1280 px de large, en clair et en sombre (`prefers-color-scheme`, et fond « tableau noir »).
+8. **Tactile d'abord** : cibles ≥ 34 px (pastilles de couleur : zone de 34 px, disque de 26 px), pas de survol obligatoire (un appui long au doigt sur un bouton affiche son `title`, sans raccourcis clavier, et ne déclenche pas le bouton), `touch-action: none` sur le canvas. Tester à 360 px, 412 px et 1280 px de large, en clair et en sombre (`prefers-color-scheme`, et fond « tableau noir »). Téléphone (≤ 760 px de large) : panneau des pages replié par défaut sur une ligne (`#app.pgmin`), réglages repliables par une poignée (`#app.propmin`, aussi ≤ 500 px de haut), fondu sur le bord de la barre d'outils qui défile (`.more-l` / `.more-r`). Vue « automatique » : `fit()` la marque (`markAuto`) ; elle se réajuste quand la scène change de taille, sauf si l'utilisateur a zoomé ou déplacé la page depuis.
 9. **Aucune dépendance réseau** : tout est local (`vendor/`, `fonts/`). N'ajoute pas de CDN ni de police Google ; le test `pwa.test.js` vérifie qu'aucune requête externe n'est émise.
-10. **Stockage** : toute lecture/écriture `localStorage` dans `try/catch` (il peut être indisponible). Clés : `piverdraw.eraser`, `piverdraw.laserMs`, `piverdraw.qrOpts`, `piverdraw.snap`, `piverdraw.snapHints`, `piverdraw.timerMs`, `piverdraw.timerSound`.
+10. **Stockage** : toute lecture/écriture `localStorage` dans `try/catch` (il peut être indisponible). Clés : `piverdraw.eraser`, `piverdraw.laserMs`, `piverdraw.pagesMin`, `piverdraw.propsMin`, `piverdraw.qrOpts`, `piverdraw.snap`, `piverdraw.snapHints`, `piverdraw.timerMs`, `piverdraw.timerSound`.
 11. **`saveFile()`** garde son double chemin : `window.claude.use('downloads')` (quand l'appli tournait comme page Claude) sinon lien `<a download>`. Le second suffit hors de Claude ; ne retire pas le premier sans raison.
 
 ### Fonctions livrées (pour mémoire)
@@ -147,6 +147,7 @@ Playwright + Chromium, sans framework : chaque fichier est un script Node qui af
 | t22 | liens et édition sur du texte tourné, copier/coller |
 | t23 | écriture manuscrite regroupée (mot = un groupe, pause/éloignement/surligneur, annulation, dégrouper, persistance, tactile 360 px) |
 | t25 | effacer la page (panneau des pages, verrouillés conservés, annulation), angle mémorisé et bouton 0°, aimant sur l'angle réel, cadre orienté et agrandissement tourné, groupes, persistance, import piégé de `ang`, 360 px |
+| t26 | revue d'interface : indicateur « ✓ Enregistré » (phrase complète en bulle), cibles ≥ 34 px, zoom réajusté au redimensionnement sauf zoom choisi, page sous le panneau des réglages, téléphone : fondu de la barre d'outils, pages et réglages repliables (mémorisés), appui long, 740 × 360 |
 | t24 | bandeau « nouvelle version » (affichage, Plus tard, Recharger enregistre le tableau, présentation, 360/412 px clair/sombre) |
 | pwa | installabilité (erreurs Chromium), hors ligne (rechargement, polices, import PDF, QR), bouton Installer (Chrome, iOS et Safari Mac simulés, déjà installée), sous-dossier, mise à jour du cache et bandeau « nouvelle version » |
 
