@@ -1,0 +1,25 @@
+PIVERDRAW — version installable (PWA)
+====================================
+
+Ce dossier contient tout PiVerDraw : aucun serveur, aucun compte, aucune connexion n'est nécessaire une fois l'application installée.
+
+1. METTRE EN LIGNE (une seule fois)
+   Déposez le CONTENU de ce dossier (index.html, sw.js, manifest.webmanifest, dossiers icons, fonts, vendor…) sur un hébergeur de pages web « statiques ». Il faut une adresse en https://
+   - Netlify : glissez le dossier sur https://app.netlify.com/drop
+   - GitHub Pages : créez un dépôt, ajoutez les fichiers, puis Settings > Pages > « Deploy from a branch ».
+   - Cloudflare Pages ou tout autre hébergeur de fichiers statiques : même principe.
+   L'application fonctionne à la racine de l'adresse ou dans un sous-dossier.
+
+2. INSTALLER (sur chaque appareil)
+   Ouvrez l'adresse, puis Fichier > « Installer l'application… ».
+   - Ordinateur (Chrome, Edge) : confirmez ; PiVerDraw s'ouvre dans sa propre fenêtre et apparaît parmi vos applications.
+   - Android (Chrome) : confirmez ; l'icône arrive sur l'écran d'accueil.
+   - iPhone / iPad (Safari) : Partager > « Sur l'écran d'accueil » > Ajouter.
+
+3. METTRE À JOUR
+   Remplacez les fichiers sur l'hébergeur. Les appareils récupèrent la nouvelle version tout seuls au lancement suivant (relancez l'application une ou deux fois).
+
+À SAVOIR
+- Les tableaux enregistrés (« Mes tableaux ») restent dans l'appareil, pour cette adresse seulement. Pour passer d'un appareil à un autre ou changer d'adresse : Fichier > Exporter ce tableau (.json), puis Importer.
+- L'application installée protège mieux vos tableaux que l'onglet d'un navigateur (Safari sur iPhone efface les données des sites qu'on n'ouvre pas pendant une semaine, pas celles des applications installées).
+- Polices : IBM Plex et Bricolage Grotesque (licence SIL OFL). Lecture des PDF : pdf.js (Mozilla, Apache 2.0). QR code : qrcode-generator (MIT). Les licences sont dans les dossiers fonts et vendor.

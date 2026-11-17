@@ -1,0 +1,13 @@
+node_modules/
+# fichiers produits par les tests (dans tests/)
+tests/shot-*.png
+tests/*.piverdraw.json
+tests/qr*.png
+tests/qr*_expected.json
+tests/*-page-*.png
+tests/mon-tableau*
+tests/nouveau-tableau*
+tests/pdfout-*.png
+tests/qr-*.png
+tests/links.pdf
+.DS_Store

@@ -1,0 +1,21 @@
+const qrOpen = require('./qropen.js');
+const { chromium, devices } = require('playwright');
+const path = require('path');
+(async () => {
+  const browser = await chromium.launch();
+  const errors = [];
+  const ctx = await browser.newContext({ ...devices['Pixel 7'], colorScheme: 'dark' });
+  await ctx.route('**/*', r => { const u = r.request().url(); if (u.startsWith('http://localhost')) return r.continue(); if (u.includes('qrcode-generator')) return r.fulfill({ path: path.join(__dirname, '..', 'site', 'vendor', 'qrcode.js'), contentType: 'application/javascript' }); return r.abort(); });
+  const page = await ctx.newPage();
+  page.on('console', m => { if (m.type() === 'error' && !/ERR_FAILED/.test(m.text())) errors.push(m.text()); });
+  page.on('pageerror', e => errors.push('[pageerror] ' + e.message));
+  await page.goto('http://localhost:8765/index.html'); await page.waitForTimeout(700);
+  await page.tap('#btnInst'); await page.waitForTimeout(150);
+  await page.screenshot({ path: 'shot-mobile-menu.png' });
+  await page.tap('[data-inst="sq45"]'); await page.waitForTimeout(200);
+  await qrOpen(page, true); await page.waitForSelector('#shareUrl'); await page.tap('#shareUrl'); await page.fill('#shareUrl', 'https://www.geogebra.org/classic/abcd'); await page.waitForSelector('#qrCv:not([hidden])'); await page.waitForTimeout(300);
+  await page.screenshot({ path: 'shot-mobile-qr-dark.png' });
+  const ov = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+  console.log('overflow', JSON.stringify(ov), 'ERRORS', JSON.stringify(errors));
+  await browser.close();
+})();

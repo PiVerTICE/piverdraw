@@ -1,0 +1,23 @@
+const { chromium } = require('playwright');
+module.exports = async function (opts = {}) {
+  const browser = await chromium.launch();
+  const ctx = await browser.newContext({ viewport: opts.viewport || { width: 1280, height: 800 }, hasTouch: !!opts.touch });
+  const errors = [];
+  const page = await ctx.newPage();
+  page.on('console', m => { if (m.type() === 'error' && !/ERR_FAILED/.test(m.text())) errors.push('[console.error] ' + m.text()); });
+  page.on('pageerror', e => errors.push('[pageerror] ' + e.message));
+  await ctx.route('**/*', route => route.request().url().startsWith('http://localhost') ? route.continue() : route.abort());
+  await page.goto('http://localhost:8765/index.html'); await page.waitForTimeout(700);
+  const T = { browser, ctx, page, errors };
+  T.check = (n, c, x = '') => console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' ' + x : ''));
+  T.world = (x, y) => page.evaluate(([x, y]) => { const v = __piverdraw.view(), r = document.getElementById('cv').getBoundingClientRect(); return [r.left + v.tx + x * v.z, r.top + v.ty + y * v.z]; }, [x, y]);
+  T.objs = () => page.evaluate(() => __piverdraw.page().objects.map(o => ({ ...o })));
+  T.st = () => page.evaluate(() => ({ sel: __piverdraw.S.sel.size, tool: __piverdraw.S.tool, undo: __piverdraw.S.undo.length, ids: [...__piverdraw.S.sel] }));
+  T.add = (o) => page.evaluate(o => { __piverdraw.addObject({ id: Math.random().toString(36).slice(2, 10), color: '#16181d', size: 3, ...o }); }, o);
+  T.fresh = async () => { await page.click('#btnFile'); await page.click('[data-act="new"]'); await page.waitForTimeout(150); };
+  T.drag = async (a, b, mods = [], steps = 8) => { const A = await T.world(...a), B = await T.world(...b); for (const m of mods) await page.keyboard.down(m); await page.mouse.move(...A); await page.mouse.down(); await page.mouse.move(...B, { steps }); await page.mouse.up(); for (const m of [...mods].reverse()) await page.keyboard.up(m); await page.waitForTimeout(150); };
+  T.click = async (p, mods = []) => { const A = await T.world(...p); for (const m of mods) await page.keyboard.down(m); await page.mouse.click(...A); for (const m of [...mods].reverse()) await page.keyboard.up(m); await page.waitForTimeout(120); };
+  T.byId = async (id) => (await T.objs()).find(o => o.id === id);
+  await T.fresh();
+  return T;
+};

@@ -1,0 +1,13 @@
+{
+  "name": "piverdraw",
+  "private": true,
+  "description": "PiVerDraw : tableau blanc web pour la classe (PWA). Le site est dans site/, les tests dans tests/.",
+  "scripts": {
+    "test": "bash outils/run_tests.sh",
+    "bump": "python3 outils/bump_sw.py",
+    "serve": "python3 -m http.server 8080 --directory site"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.0"
+  }
+}
