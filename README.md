@@ -2,7 +2,7 @@
 
 **Une application pour utiliser son TBI/ENI en classe** : un tableau blanc dans le navigateur, pensé pour le tableau interactif, l’ordinateur, la tablette et le téléphone, à la souris, au doigt ou au stylet.
 
-👉 **Ouvrir PiVerDraw : https://pivertice.github.io/**
+👉 **Ouvrir PiVerDraw : https://pivertice.github.io/piverdraw/**
 
 Gratuit, sans compte, sans publicité. Une fois installé, il fonctionne **sans internet**.
 
@@ -179,7 +179,7 @@ Sur Mac, **Ctrl** = **Cmd**.
 
 **J’ai effacé quelque chose par erreur.** Ctrl+Z, ou la flèche ↶ en haut.
 
-**J’utilisais l’ancienne adresse (pierreverbiest.github.io/piverdraw).** PiVerDraw a déménagé à **https://pivertice.github.io/**. Les tableaux enregistrés à l’ancienne adresse ne suivent pas automatiquement : si l’application déjà installée s’ouvre encore (hors ligne), utilisez **Fichier › Exporter ce tableau (.json)** pour chaque tableau à garder, puis **Importer un projet** dans la nouvelle version, et installez l’application depuis la nouvelle adresse.
+**J’utilisais l’ancienne adresse (pierreverbiest.github.io/piverdraw).** PiVerDraw a déménagé à **https://pivertice.github.io/piverdraw/**. Les tableaux enregistrés à l’ancienne adresse ne suivent pas automatiquement : si l’application déjà installée s’ouvre encore (hors ligne), utilisez **Fichier › Exporter ce tableau (.json)** pour chaque tableau à garder, puis **Importer un projet** dans la nouvelle version, et installez l’application depuis la nouvelle adresse.
 
 ---
 
