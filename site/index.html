@@ -1956,8 +1956,10 @@ $('#btnHelp').onclick = helpDialog;
 let installEv = null, installDismissed = false, installedNow = false;
 const isStandalone = () => { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (_) { return false; } };
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+// Safari sur Mac (macOS 14 Sonoma ou plus récent) : pas d'événement d'installation, mais « Fichier › Ajouter au Dock… »
+const isMacSafari = !isIOS && /Macintosh/.test(navigator.userAgent) && /Safari\//.test(navigator.userAgent) && !/Chrome|Chromium|CriOS|Edg|OPR|Firefox|FxiOS/.test(navigator.userAgent);
 function syncInstall() {
-  const on = !installedNow && !isStandalone() && !!document.querySelector('link[rel="manifest"]') && (!!installEv || isIOS || installDismissed);
+  const on = !installedNow && !isStandalone() && !!document.querySelector('link[rel="manifest"]') && (!!installEv || isIOS || isMacSafari || installDismissed);
   $$('[data-install]').forEach(x => { x.hidden = !on; });
 }
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEv = e; syncInstall(); });
@@ -1970,13 +1972,15 @@ function installDialog() {
   const p = document.createElement('p'); p.textContent = 'PiVerDraw s’installe comme une application : une icône sur l’écran d’accueil ou le bureau, l’affichage en plein écran et l’utilisation sans connexion.';
   const steps = isIOS
     ? ['Touchez le bouton Partager de Safari (le carré avec une flèche vers le haut).', 'Faites défiler et choisissez « Sur l’écran d’accueil ».', 'Touchez « Ajouter » : l’icône PiVerDraw apparaît avec vos autres applications.']
+    : isMacSafari
+    ? ['Dans la barre de menus de Safari, ouvrez le menu « Fichier » (ou cliquez sur le bouton Partager de la barre d’outils).', 'Choisissez « Ajouter au Dock… ».', 'Cliquez sur « Ajouter » : PiVerDraw s’ouvre dans sa propre fenêtre, depuis le Dock ou le Launchpad.', 'Cette option demande macOS 14 (Sonoma) ou plus récent ; sinon, utilisez Chrome ou Edge.']
     : ['Ouvrez le menu de votre navigateur (⋮ ou ⋯, ou l’icône d’installation dans la barre d’adresse).', 'Choisissez « Installer PiVerDraw » (ou « Ajouter à l’écran d’accueil »).', 'Confirmez : PiVerDraw s’ouvre alors dans sa propre fenêtre.'];
   const ol = document.createElement('ol'); steps.forEach(t => { const li = document.createElement('li'); li.textContent = t; ol.append(li); });
   const a = document.createElement('div'); a.className = 'acts'; const ok = document.createElement('button'); ok.className = 'btn primary'; ok.textContent = 'Fermer'; ok.onclick = closeDialog; a.append(ok);
   d.append(h, p, ol, a); v.append(d); m.append(v); v.addEventListener('pointerdown', e => { if (e.target === v) closeDialog(); }); ok.focus();
 }
 function installApp() {
-  if (!installEv) { installDialog(); return; }
+  if (!installEv || isMacSafari) { installDialog(); return; }
   const ev = installEv; installEv = null;                     // l'invite ne peut servir qu'une fois
   ev.prompt(); Promise.resolve(ev.userChoice).then(r => { if (r && r.outcome === 'dismissed') { installDismissed = true; syncInstall(); } }).catch(() => {});
 }

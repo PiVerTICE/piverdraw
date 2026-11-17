@@ -91,6 +91,17 @@ const check = (n, c, x = '') => console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? '
   check('iOS: dialog fits the phone screen', fits); await page.screenshot({ path: 'shot-install-ios.png' });
   check('iOS: no errors', errs.length === 0, JSON.stringify(errs)); await ctx.close();
 
+  // ---------- C bis. Safari sur Mac : « Fichier › Ajouter au Dock… » ----------
+  const UA_MAC = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15';
+  ({ ctx, page, errs } = await open('http://localhost:8766/', { userAgent: UA_MAC, viewport: { width: 1280, height: 800 } }));
+  await page.evaluate(() => document.getElementById('btnFile').click()); await page.waitForTimeout(150);
+  check('Mac Safari: install item visible without any browser event', await page.evaluate(() => !document.querySelector('[data-act="install"]').hidden));
+  await page.evaluate(() => document.querySelector('[data-act="install"]').click()); await page.waitForSelector('.dlg h2');
+  const tm = await page.evaluate(() => document.querySelector('.dlg ol').innerText);
+  check('Mac Safari: steps explain Fichier › Ajouter au Dock', /Ajouter au Dock/.test(tm) && /Fichier/.test(tm) && !/écran d’accueil/.test(tm), tm.replace(/\n/g, ' | ').slice(0, 200));
+  await page.screenshot({ path: 'shot-install-macsafari.png' });
+  check('Mac Safari: no errors', errs.length === 0, JSON.stringify(errs)); await ctx.close();
+
   // ---------- D. version « artefact » (sans manifeste) : jamais de bouton ----------
   ({ ctx, page } = await open('http://localhost:8765/index.html'));
   await page.evaluate(() => { const e = new Event('beforeinstallprompt', { cancelable: true }); e.prompt = () => {}; e.userChoice = Promise.resolve({ outcome: 'accepted' }); window.dispatchEvent(e); });
