@@ -154,7 +154,9 @@ Les tests écrivent des captures (`shot-*.png`) et des fichiers temporaires dans
 
 ## 7. Mise en ligne, PWA et hors ligne
 
-- Le dossier à publier est **`site/`** (HTTPS obligatoire pour l'installation ; GitHub Pages, Netlify, Cloudflare Pages conviennent ; racine ou sous-dossier).
+- **En ligne : https://pierreverbiest.github.io/piverdraw/** (GitHub Pages, dépôt public `pierreverbiest/piverdraw`, choix de Pierre en novembre 2026 plutôt que Vercel). Chaque envoi sur `main` publie `site/` tel quel par `.github/workflows/pages.yml`, qui refuse de publier si `sw.js` n'est pas à jour. Le dépôt étant public : jamais de vrais noms d'élèves ni de secrets dans le code ou les tests.
+- Le dossier publié est **`site/`** (HTTPS obligatoire pour l'installation ; l'application fonctionne à la racine ou dans un sous-dossier, comme ici `/piverdraw/`).
+- Auteur des commits : `236827678+pierreverbiest@users.noreply.github.com` (réglé dans `.git/config` du dépôt).
 - **Après toute modification d'un fichier de `site/`, lance `python3 outils/bump_sw.py`.** Il recalcule `CACHE = 'piverdraw-<hash>'` et la liste `ASSETS` de `sw.js`. Sans cela les appareils installés ne verront jamais la nouvelle version (le service worker sert le cache en priorité). `run_tests.sh` refuse de tourner si `sw.js` n'est pas à jour.
 - Mise à jour côté utilisateur : le navigateur détecte le nouveau `sw.js`, installe le nouveau cache (`skipWaiting`), supprime l'ancien (`clients.claim`) ; la page ouverte garde l'ancien code jusqu'au prochain chargement.
 - Ajouter un fichier à `site/` (icône, police, bibliothèque) suffit : `bump_sw.py` le met dans la liste de précache. Les fichiers `*-LICENSE.txt` et `LISEZMOI.txt` ne sont volontairement pas mis en cache.

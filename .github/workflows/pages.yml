@@ -1,0 +1,35 @@
+# Publication de PiVerDraw sur GitHub Pages : à chaque envoi sur main, le dossier site/ est mis en ligne
+# (https://pierreverbiest.github.io/piverdraw/). Rien n'est compilé : site/ est publié tel quel.
+name: Publication sur GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      # Sans sw.js à jour, les appareils installés ne verraient jamais la nouvelle version (voir CLAUDE.md §7)
+      - name: Vérifier que sw.js est à jour
+        run: python3 outils/bump_sw.py --check
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploiement
+        uses: actions/deploy-pages@v4
