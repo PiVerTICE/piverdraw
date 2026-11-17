@@ -146,7 +146,8 @@ Playwright + Chromium, sans framework : chaque fichier est un script Node qui af
 | t20 | tactile et mobile (barre de sélection à 360/412 px) |
 | t22 | liens et édition sur du texte tourné, copier/coller |
 | t23 | écriture manuscrite regroupée (mot = un groupe, pause/éloignement/surligneur, annulation, dégrouper, persistance, tactile 360 px) |
-| pwa | installabilité (erreurs Chromium), hors ligne (rechargement, polices, import PDF, QR), bouton Installer (Chrome, iOS simulé, déjà installée), sous-dossier, mise à jour du cache |
+| t24 | bandeau « nouvelle version » (affichage, Plus tard, Recharger enregistre le tableau, présentation, 360/412 px clair/sombre) |
+| pwa | installabilité (erreurs Chromium), hors ligne (rechargement, polices, import PDF, QR), bouton Installer (Chrome, iOS et Safari Mac simulés, déjà installée), sous-dossier, mise à jour du cache et bandeau « nouvelle version » |
 
 Bruit connu, sans gravité (déjà filtré par `run_tests.sh`) : t1 affiche une erreur console `ERR_FAILED` (police externe bloquée), t2 « noir switches to white pen », t8 « gone at 3.2 s » (chronométrage du laser).
 
@@ -160,7 +161,7 @@ Les tests écrivent des captures (`shot-*.png`) et des fichiers temporaires dans
 - Le dossier publié est **`site/`** (HTTPS obligatoire pour l'installation ; l'application fonctionne à la racine ou dans un sous-dossier, comme ici `/piverdraw/`).
 - Auteur des commits : `236827678+pierreverbiest@users.noreply.github.com` (réglé dans `.git/config` du dépôt).
 - **Après toute modification d'un fichier de `site/`, lance `python3 outils/bump_sw.py`.** Il recalcule `CACHE = 'piverdraw-<hash>'` et la liste `ASSETS` de `sw.js`. Sans cela les appareils installés ne verront jamais la nouvelle version (le service worker sert le cache en priorité). `run_tests.sh` refuse de tourner si `sw.js` n'est pas à jour.
-- Mise à jour côté utilisateur : le navigateur détecte le nouveau `sw.js`, installe le nouveau cache (`skipWaiting`), supprime l'ancien (`clients.claim`) ; la page ouverte garde l'ancien code jusqu'au prochain chargement.
+- Mise à jour côté utilisateur : le navigateur détecte le nouveau `sw.js`, installe le nouveau cache (`skipWaiting`), supprime l'ancien (`clients.claim`) ; la page ouverte garde l'ancien code jusqu'au prochain chargement. C'est pourquoi `pwa.js` écoute `controllerchange` (sauf à la première installation) et envoie l'événement `piverdraw-update` : `index.html` affiche alors le bandeau `#updBar` « Une nouvelle version de PiVerDraw est prête » (bouton Recharger, qui enregistre d'abord le tableau par `flushSave`). `pwa.js` vérifie aussi les mises à jour au retour sur l'application et toutes les heures. Piège : en essayant une nouveauté, s'assurer que la page tourne bien avec le nouveau code (recharger).
 - Ajouter un fichier à `site/` (icône, police, bibliothèque) suffit : `bump_sw.py` le met dans la liste de précache. Les fichiers `*-LICENSE.txt` et `LISEZMOI.txt` ne sont volontairement pas mis en cache.
 - Bouton « Installer l'application… » (menu Fichier) : Chrome/Edge/Android utilisent l'événement `beforeinstallprompt` ; iPhone/iPad (Safari) n'en ont pas, on affiche donc les étapes « Partager › Sur l'écran d'accueil ». Il est caché si le mode « application » est déjà actif ou si la page n'a pas de manifeste.
 - `navigator.storage.persist()` (dans `pwa.js`) demande que « Mes tableaux » ne soit pas purgé. Rappelle à Pierre que les tableaux sont **par appareil et par adresse** ; la voie de transfert est Fichier › Exporter (.json) puis Importer.

@@ -112,12 +112,15 @@ const check = (n, c, x = '') => console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? '
   await swReady(page); await page.reload(); await page.waitForTimeout(600);
   const sc = await page.evaluate(async () => { const r = await navigator.serviceWorker.getRegistration(); return { scope: r.scope, k: await caches.keys(), ctl: !!navigator.serviceWorker.controller }; });
   check('sub-folder hosting: scope is /piverdraw/, controlled', sc.scope === 'http://localhost:8767/piverdraw/' && sc.ctl, JSON.stringify(sc));
+  check('first install: no « nouvelle version » banner', !(await page.isVisible('#updBar')));
   await ctx.setOffline(true); await page.reload(); await page.waitForTimeout(700); check('sub-folder: works offline', (await page.title()) === 'PiVerDraw' && !!(await page.$('#cv'))); await ctx.setOffline(false);
   // nouvelle version : sw.js modifié → ancien cache supprimé
   const swp = path.join(SUBROOT, 'piverdraw', 'sw.js'); fs.writeFileSync(swp, fs.readFileSync(swp, 'utf8').replace(/piverdraw-[0-9a-f]{10}/, 'piverdraw-nouvelle1'));
   await page.reload(); let after = { k: [] };
   for (let i = 0; i < 20; i++) { await page.waitForTimeout(500); after = await page.evaluate(async () => ({ k: await caches.keys() })); if (after.k.length === 1 && after.k[0] === 'piverdraw-nouvelle1') break; }
-  await page.reload(); await page.waitForTimeout(600);
+  check('update: banner « nouvelle version » shown in the open page', await page.isVisible('#updBar'));
+  await Promise.all([page.waitForNavigation(), page.click('#updGo')]); await page.waitForTimeout(600);
+  check('update: after Recharger, banner gone', !(await page.isVisible('#updBar')));
   check('update: new cache installed, old cache removed', after.k.length === 1 && after.k[0] === 'piverdraw-nouvelle1', JSON.stringify(after));
   check('update: app still works', !!(await page.$('#cv')) && errs.length === 0, JSON.stringify(errs)); await ctx.close();
   await browser.close();

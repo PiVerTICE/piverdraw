@@ -204,6 +204,14 @@ input[type=range]{accent-color:var(--accent);width:120px}
 #app.present .top,#app.present .rail,#app.present .pages,#app.present .props{display:none}
 #app.present .zoom{display:none}
 #app.present .toast{bottom:auto;top:16px}
+.updbar{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);max-width:calc(100% - 140px);display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:6px 10px;padding:6px 6px 6px 14px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);z-index:7;font-size:13px}
+.updbar .btn{height:34px;min-width:34px;justify-content:center}
+.updbar .short{display:none}
+.updbar span{white-space:nowrap}
+.updbar .btn{flex:none}
+.updbar:not([hidden]) ~ .toast{bottom:84px}
+#app.present .updbar{bottom:auto;top:16px}
+#app.present .updbar:not([hidden]) ~ .toast{top:84px}
 #app.present ~ .pbar{display:flex}
 .pbar .pct{font-family:var(--font-mono);font-size:12px;min-width:4em;text-align:center}
 .pbar .tool{width:38px;height:38px}
@@ -234,6 +242,10 @@ input[type=range]{accent-color:var(--accent);width:120px}
   .props{top:6px;padding:5px 8px;gap:4px 10px}
   input[type=range]{width:90px}
   .zoom{bottom:8px;right:8px}
+  .updbar{bottom:54px;max-width:calc(100% - 16px);flex-wrap:nowrap}
+  .updbar .long{display:none}
+  .updbar .short{display:inline}
+  .updbar:not([hidden]) ~ .toast{bottom:112px}
 }
 /* Outils de classe : minuteur, tirage au sort, rideau */
 .wdg{position:absolute;z-index:8;width:min(320px,calc(100% - 20px));max-height:calc(100% - 20px);display:flex;flex-direction:column;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
@@ -457,6 +469,11 @@ input[type=range]{accent-color:var(--accent);width:120px}
       <span class="pct" id="zPct">100 %</span>
       <button class="btn" id="zIn" aria-label="Zoom avant" title="Zoom avant (+)"><svg class="i" data-icon="plus"></svg></button>
       <button class="btn" id="zFit" aria-label="Ajuster à la fenêtre" title="Ajuster à la fenêtre (0)"><svg class="i" data-icon="fit"></svg></button>
+    </div>
+    <div class="updbar" id="updBar" role="status" aria-live="polite" hidden>
+      <span class="long">Une nouvelle version de PiVerDraw est prête.</span><span class="short">Nouvelle version prête</span>
+      <button class="btn primary" id="updGo" title="Recharger pour utiliser la nouvelle version (votre tableau est enregistré)">Recharger</button>
+      <button class="btn" id="updLater" aria-label="Plus tard" title="Plus tard"><svg class="i" data-icon="close"></svg></button>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
     <div class="drop" id="drop" hidden>Déposez une image, un PDF ou un projet .json</div>
@@ -1940,6 +1957,18 @@ function toast(msg, sticky) {
   if (!sticky) toastT = setTimeout(() => { t.hidden = true; }, 3600);
 }
 function hideToast() { clearTimeout(toastT); $('#toast').hidden = true; }
+
+/* Nouvelle version : pwa.js envoie « piverdraw-update » quand une mise à jour a pris le contrôle de la page.
+   La page ouverte tourne encore avec l'ancien code : on propose de recharger (après avoir enregistré le tableau). */
+function showUpdate() { $('#updBar').hidden = false; }
+window.addEventListener('piverdraw-update', showUpdate);
+if (window.__piverdrawUpdate) showUpdate();
+$('#updGo').onclick = async () => {
+  $('#updGo').disabled = true;
+  try { if (S.editing) commitText(); await flushSave(); } catch (_) {}
+  location.reload();
+};
+$('#updLater').onclick = () => { $('#updBar').hidden = true; };
 function dialog(title, body, acts) {
   const m = $('#modal'); m.textContent = '';
   const v = document.createElement('div'); v.className = 'veil'; v.setAttribute('role', 'dialog'); v.setAttribute('aria-modal', 'true');
