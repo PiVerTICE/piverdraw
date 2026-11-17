@@ -60,6 +60,7 @@ Un seul fichier, un seul `<script>` qui est une IIFE (`(function () { 'use stric
 | Dessin | `drawObj(c, o, live)`, `paintContent(c, pg, vis, opts)` (commun à l'écran, aux vignettes et aux exports), `render()` (écran : contenu + sélection + instruments + laser) |
 | Vue | zoom/déplacement par page (`S.views[pageId] = {tx, ty, z}`), `fit()`, molette, pincement |
 | Instruments | règle, équerres 45° et 30-60°, rapporteur, compas ; tracé le long des bords |
+| Écriture regroupée | `addInk`/`inkJoin` (juste après `addObject`) : un trait de stylo posé moins de 1,5 s (`INK_MS`) après le précédent et proche de lui rejoint son groupe (`gid`) ; `lastInk` en mémoire seulement ; jamais pour le surligneur ni les formes redressées |
 | Gestes | `startGesture(tool, e, p, noLink)`, gestionnaires `pointerdown/move/up`, `finishGesture(cancel)` ; `G.kind` ∈ draw, shape, erase, laser, link, move, scale, rotate, marquee, pan, inst-* |
 | Gomme « Partie » | `cutPolyline`, `erasePiece`, `shapeOutline` : coupe les traits/formes au bord de la gomme |
 | Texte | édition par `<textarea>` superposé (`commitText`) |
@@ -114,7 +115,7 @@ objet (commun) : { t, id, color, size, … } + facultatifs : rot, gid, locked, c
 
 ### Fonctions livrées (pour mémoire)
 
-Stylo (pression), surligneur, gomme « Partie »/« Trait entier », lignes/flèches/rectangles/ellipses (remplissage), texte, pages (+ vignettes), zoom/déplacement, PDF/images en import, export PNG/PDF/.json, fonds (blanc, quadrillé, lignes, Seyès, points, tableau noir), instruments (règle, équerres, rapporteur, compas), mode présentation (stylo, gomme, laser, main, sélection), laser (traits indépendants, durée réglable), QR code (couleurs, transparent, cliquable, libellé), « Mes tableaux » (bibliothèque IndexedDB), outils de classe (minuteur, tirage au sort + groupes, rideau), liens cliquables (Ctrl+K ; exportés en liens dans le PDF), redressement des formes tracées (pointe immobile ou bouton), copies illimitées, rotation (poignée ronde, Maj = pas de 15°, bouton 90°), groupes (Ctrl+G), verrouillage, installation PWA hors ligne.
+Stylo (pression), surligneur, gomme « Partie »/« Trait entier », lignes/flèches/rectangles/ellipses (remplissage), texte, pages (+ vignettes), zoom/déplacement, PDF/images en import, export PNG/PDF/.json, fonds (blanc, quadrillé, lignes, Seyès, points, tableau noir), instruments (règle, équerres, rapporteur, compas), mode présentation (stylo, gomme, laser, main, sélection), laser (traits indépendants, durée réglable), QR code (couleurs, transparent, cliquable, libellé), « Mes tableaux » (bibliothèque IndexedDB), outils de classe (minuteur, tirage au sort + groupes, rideau), liens cliquables (Ctrl+K ; exportés en liens dans le PDF), redressement des formes tracées (pointe immobile ou bouton), copies illimitées, écriture manuscrite regroupée (un mot se déplace d’un bloc), rotation (poignée ronde, Maj = pas de 15°, bouton 90°), groupes (Ctrl+G), verrouillage, installation PWA hors ligne.
 
 ## 5. Raccourcis (voir aussi le dialogue d'aide `?` dans l'appli)
 
@@ -144,6 +145,7 @@ Playwright + Chromium, sans framework : chaque fichier est un script Node qui af
 | t19 | groupes et verrouillage |
 | t20 | tactile et mobile (barre de sélection à 360/412 px) |
 | t22 | liens et édition sur du texte tourné, copier/coller |
+| t23 | écriture manuscrite regroupée (mot = un groupe, pause/éloignement/surligneur, annulation, dégrouper, persistance, tactile 360 px) |
 | pwa | installabilité (erreurs Chromium), hors ligne (rechargement, polices, import PDF, QR), bouton Installer (Chrome, iOS simulé, déjà installée), sous-dossier, mise à jour du cache |
 
 Bruit connu, sans gravité (déjà filtré par `run_tests.sh`) : t1 affiche une erreur console `ERR_FAILED` (police externe bloquée), t2 « noir switches to white pen », t8 « gone at 3.2 s » (chronométrage du laser).

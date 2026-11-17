@@ -1348,7 +1348,7 @@ function startGesture(tool, e, p, noLink) {
     case 'hand': { const v = view(); G = { kind: 'pan', pid, sx: p.sx, sy: p.sy, tx: v.tx, ty: v.ty }; cv.style.cursor = 'grabbing'; break; }
     case 'pen': case 'hl': {
       const vp = e.pointerType === 'pen' && tool === 'pen';
-      G = { kind: 'draw', pid, temp: strokeObj(tool, [[p.x, p.y, vp ? (e.pressure || .5) : .5]], vp), hold: { sx: p.sx, sy: p.sy }, holdT: 0, snap: null }; armHold(G); break;
+      G = { kind: 'draw', pid, t0: performance.now(), temp: strokeObj(tool, [[p.x, p.y, vp ? (e.pressure || .5) : .5]], vp), hold: { sx: p.sx, sy: p.sy }, holdT: 0, snap: null }; armHold(G); break;
     }
     case 'line': case 'arrow': case 'rect': case 'ellipse':
       G = { kind: 'shape', pid, tool, x0: p.x, y0: p.y, temp: { t: tool, id: uid(), x1: p.x, y1: p.y, x2: p.x, y2: p.y, color: S.color, size: S.sizes.shape, fill: S.fill && (tool === 'rect' || tool === 'ellipse') } }; break;
@@ -1544,6 +1544,28 @@ cv.addEventListener('pointercancel', endPointer);
 cv.addEventListener('pointerleave', () => { if (!G && S.hover) { S.hover = null; requestRender(); } });
 
 function addObject(o) { commit(() => page().objects.push(o)); }
+
+/* Écriture manuscrite : les traits de stylo écrits à la suite (moins de INK_MS entre le lever et le poser du crayon)
+   et proches les uns des autres forment automatiquement un groupe (gid) : un mot ou une courte phrase se sélectionne
+   et se déplace d'un bloc. « Dégrouper » (Ctrl+G) les sépare. lastInk ne vit qu'en mémoire, jamais dans les données. */
+const INK_MS = 1500;
+let lastInk = null;                                                 // { id, pageId, t } : dernier trait de stylo posé
+function inkJoin(o, t0) {
+  if (o.hl || !lastInk || lastInk.pageId !== page().id || !(t0 - lastInk.t <= INK_MS)) return null;
+  const pg = page(), prev = pg.objects.find(q => q.id === lastInk.id);
+  if (!prev || prev.t !== 'stroke' || prev.hl || prev.locked || prev.clone) return null;
+  const members = prev.gid ? pg.objects.filter(q => q.gid === prev.gid) : [prev];
+  const b = unionBounds(members), nb = boundsOf(o), h = nb[3] - nb[1];
+  const gx = Math.max(0, nb[0] - b.x1, b.x0 - nb[2]), gy = Math.max(0, nb[1] - b.y1, b.y0 - nb[3]);
+  if (Math.hypot(gx, gy) > Math.max(48, 1.5 * h)) return null;      // trop loin : un autre mot ailleurs sur la page
+  return { gid: prev.gid || uid(), ids: new Set(members.map(q => q.id)) };
+}
+function addInk(o, t0) {
+  const j = inkJoin(o, t0);
+  if (j) o = { ...o, gid: j.gid };
+  commit(() => { const pg = page(); if (j) pg.objects = pg.objects.map(q => j.ids.has(q.id) && q.gid !== j.gid ? { ...q, gid: j.gid } : q); pg.objects.push(o); });
+  lastInk = o.hl ? null : { id: o.id, pageId: page().id, t: performance.now() };
+}
 function finishGesture(cancel) {
   const g = G; G = null; cv.style.cursor = cursorFor();
   if (!g) return;
@@ -1551,7 +1573,7 @@ function finishGesture(cancel) {
   const z = view().z;
   switch (g.kind) {
     case 'link': if (!cancel) openLink(g.o.href); break;
-    case 'draw': if (!cancel) { if (g.snap) commit(() => page().objects.push(...g.snap)); else addObject(g.temp); } break;
+    case 'draw': if (!cancel) { if (g.snap) { commit(() => page().objects.push(...g.snap)); lastInk = null; } else addInk(g.temp, g.t0); } break;
     case 'inst-draw': if (!cancel && polyLen(g.temp.pts) > 1) addObject(g.temp); break;
     case 'compass-draw': if (!cancel && Math.abs(g.cum) > .03 && g.temp.pts.length > 2) addObject(g.temp); break;
     case 'shape': { const t = g.temp; if (!cancel && Math.hypot(t.x2 - t.x1, t.y2 - t.y1) * z > 4) { addObject(t); } break; }

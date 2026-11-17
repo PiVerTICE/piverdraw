@@ -1,6 +1,6 @@
 /* PiVerDraw : service worker. Tout le nécessaire est mis en cache à l'installation : l'application fonctionne ensuite sans connexion.
    Le nom du cache change à chaque nouvelle version des fichiers : l'ancienne version est alors supprimée. */
-const CACHE = 'piverdraw-00202c8e7f';
+const CACHE = 'piverdraw-4fb643f68a';
 const ASSETS = [
  "./",
  "fonts/bricolage-grotesque-latin-ext-opsz-normal.woff2",
