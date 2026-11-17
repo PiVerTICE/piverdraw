@@ -1,5 +1,5 @@
 # Publication de PiVerDraw sur GitHub Pages : à chaque envoi sur main, le dossier site/ est mis en ligne
-# (https://pierreverbiest.github.io/piverdraw/). Rien n'est compilé : site/ est publié tel quel.
+# (https://pivertice.github.io/). Rien n'est compilé : site/ est publié tel quel.
 name: Publication sur GitHub Pages
 
 on:
